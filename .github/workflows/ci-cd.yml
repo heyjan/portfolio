@@ -92,7 +92,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /home/proxmox/portfolio
+            cd /home/proxmox/portfolio/app
             git -C app pull origin master
             docker-compose exec -T app composer install --no-dev --optimize-autoloader
             docker-compose exec -T app npm install
