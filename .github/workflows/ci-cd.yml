@@ -73,7 +73,10 @@ jobs:
           php-version: '8.3'
 
       - name: Install Dependencies
-        run: composer install --no-dev --optimize-autoloader
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          composer install -q --no-ansi --no-dev --optimize-autoloader
+          
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
