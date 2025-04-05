@@ -75,7 +75,15 @@ jobs:
       - name: Install Dependencies
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+          echo "Running in directory: $(pwd)"
+          ls -la
+          composer --version
+          php -v
+          php -m # List PHP modules
+          composer install -v # Use verbose flag
+        env:
+          COMPOSER_PROCESS_TIMEOUT: 0
+          COMPOSER_NO_INTERACTION: 1
           
 
       - name: Setup Node.js
