@@ -1,0 +1,14 @@
+# Ignore everything
+/*
+
+# But not these directories
+!/app/
+!/public/
+
+# If you need specific files from the root
+!/.gitignore
+!/composer.json
+!/composer.lock
+!/package.json
+!/package-lock.json
+!/symfony.lock
