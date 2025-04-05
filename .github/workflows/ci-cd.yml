@@ -92,12 +92,10 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /var/www/app
-            git pull origin main
-            composer install --no-dev --optimize-autoloader
-            npm ci
-            npm run build
-            php bin/console doctrine:migrations:migrate --no-interaction
-            php bin/console cache:clear
-            # Reload PHP-FPM if needed
-            sudo systemctl reload php8.3-fpm
+            cd /home/proxmox/portfolio
+            git -C app pull origin master
+            docker-compose exec -T app composer install --no-dev --optimize-autoloader
+            docker-compose exec -T app npm install
+            docker-compose exec -T app npm run build
+            docker-compose exec -T app php bin/console doctrine:migrations:migrate --no-interaction
+            docker-compose exec -T app php bin/console cache:clear
