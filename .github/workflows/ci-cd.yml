@@ -88,7 +88,7 @@ jobs:
           script: |
             cd /home/proxmox/portfolio
             git -C app pull origin master
-            docker-compose exec -T app composer install --no-dev --optimize-autoloader
+            docker-compose exec -T app composer install --optimize-autoloader
             docker-compose exec -T app npm install
             docker-compose exec -T app npm run build
             docker-compose exec -T app php bin/console doctrine:migrations:migrate --no-interaction
