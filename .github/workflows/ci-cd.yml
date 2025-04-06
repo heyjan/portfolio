@@ -30,31 +30,26 @@ jobs:
           tools: composer:v2
           coverage: none
 
-      - name: Debug Environment
+      - name: Find project files
+        id: find_files
         run: |
-          echo "Current directory:"
-          pwd
-          echo "Directory contents:"
-          ls -la
+          if [ -f "composer.json" ]; then
+            echo "project_dir=." >> $GITHUB_OUTPUT
+          elif [ -f "app/composer.json" ]; then
+            echo "project_dir=app" >> $GITHUB_OUTPUT
+          else
+            echo "Could not find composer.json"
+            find . -name "composer.json"
+            exit 1
+          fi
 
       - name: Configure Git
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-      - name: Install Dependencies
+      - name: Install Composer Dependencies
         run: |
-          # Check if composer.json exists in the expected location
-          if [ -f "composer.json" ]; then
-            echo "Found composer.json in root directory"
-            composer install -v
-          elif [ -f "app/composer.json" ]; then
-            echo "Found composer.json in app directory"
-            cd app
-            composer install -v
-          else
-            echo "Could not find composer.json in root or app directory"
-            find . -name "composer.json"
-            exit 1
-          fi
+          cd ${{ steps.find_files.outputs.project_dir }}
+          composer install -v
         env:
           COMPOSER_PROCESS_TIMEOUT: 0
           COMPOSER_NO_INTERACTION: 1
@@ -64,30 +59,17 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
+          cache-dependency-path: ${{ steps.find_files.outputs.project_dir }}/package-lock.json
 
       - name: Install JS Dependencies
         run: |
-          if [ -f "package.json" ]; then
-            npm ci
-          elif [ -f "app/package.json" ]; then
-            cd app
-            npm ci
-          else
-            echo "Could not find package.json"
-            exit 1
-          fi
+          cd ${{ steps.find_files.outputs.project_dir }}
+          npm ci
 
       - name: Build frontend
         run: |
-          if [ -f "package.json" ]; then
-            npm run build
-          elif [ -f "app/package.json" ]; then
-            cd app
-            npm run build
-          else
-            echo "Could not find package.json"
-            exit 1
-          fi
+          cd ${{ steps.find_files.outputs.project_dir }}
+          npm run build
 
   deploy:
     needs: test
