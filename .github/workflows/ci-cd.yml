@@ -32,24 +32,29 @@ jobs:
 
       - name: Debug Environment
         run: |
+          echo "Current directory:"
           pwd
+          echo "Directory contents:"
           ls -la
-          php -v
-          composer -V
 
       - name: Configure Git
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-      - name: Cache Composer packages
-        uses: actions/cache@v3
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-
-
       - name: Install Dependencies
-        run: composer install -v # Verbose output for debugging
+        run: |
+          # Check if composer.json exists in the expected location
+          if [ -f "composer.json" ]; then
+            echo "Found composer.json in root directory"
+            composer install -v
+          elif [ -f "app/composer.json" ]; then
+            echo "Found composer.json in app directory"
+            cd app
+            composer install -v
+          else
+            echo "Could not find composer.json in root or app directory"
+            find . -name "composer.json"
+            exit 1
+          fi
         env:
           COMPOSER_PROCESS_TIMEOUT: 0
           COMPOSER_NO_INTERACTION: 1
@@ -61,10 +66,28 @@ jobs:
           cache: 'npm'
 
       - name: Install JS Dependencies
-        run: npm ci
+        run: |
+          if [ -f "package.json" ]; then
+            npm ci
+          elif [ -f "app/package.json" ]; then
+            cd app
+            npm ci
+          else
+            echo "Could not find package.json"
+            exit 1
+          fi
 
       - name: Build frontend
-        run: npm run build
+        run: |
+          if [ -f "package.json" ]; then
+            npm run build
+          elif [ -f "app/package.json" ]; then
+            cd app
+            npm run build
+          else
+            echo "Could not find package.json"
+            exit 1
+          fi
 
   deploy:
     needs: test
