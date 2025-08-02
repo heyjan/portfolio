@@ -1,0 +1,7 @@
+#!/bin/bash
+
+## Description: Run npm dev-server for hot reload
+## Usage: npm-dev
+## Example: "ddev npm-dev"
+
+npm run dev-server

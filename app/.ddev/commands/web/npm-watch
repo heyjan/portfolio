@@ -1,0 +1,7 @@
+#!/bin/bash
+
+## Description: Run npm watch for automatic asset rebuilding
+## Usage: npm-watch
+## Example: "ddev npm-watch"
+
+npm run watch
